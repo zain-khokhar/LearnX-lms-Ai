@@ -1,5 +1,8 @@
 // pages/login.js
 "use client";
+import { useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import { FiMail, FiLock, FiAlertCircle } from 'react-icons/fi';
 import React, { useState } from 'react';
 import Link from 'next/link';
  
@@ -9,6 +12,26 @@ const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      const result = await login(email, password);
+      if (!result.success) {
+        setError(result.error || 'Failed to login');
+      }
+    } catch (err) {
+      setError('An unexpected error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -83,14 +106,27 @@ const LoginPage = () => {
               />
             </div>
 
+            {error && (
+              <div className="flex items-center text-red-600 dark:text-red-400 text-sm mb-4">
+                <FiAlertCircle className="h-5 w-5 mr-2" />
+                {error}
+              </div>
+            )}
+
             <button
+              type="submit"
+              disabled={loading}
               className={`w-full py-3 px-4 rounded-lg font-bold text-white shadow-md transition duration-200 ${
                 isLogin
                   ? 'bg-gradient-to-r from-blue-700 to-blue-800 hover:from-blue-800 hover:to-blue-900'
                   : 'bg-gradient-to-r from-indigo-700 to-indigo-800 hover:from-indigo-800 hover:to-indigo-900'
               }`}
             >
-              {isLogin ? 'Login to Account' : 'Create Account'}
+              {loading ? (
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              ) : (
+                isLogin ? 'Login to Account' : 'Create Account'
+              )}
             </button>
 
             <div className="mt-4 text-center">

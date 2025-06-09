@@ -1,12 +1,17 @@
 // app/sign-out/page.js
 "use client";
-import React, { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 const SignOutPage = () => {
   const router = useRouter();
   const [countdown, setCountdown] = useState(15);
   const [isSigningOut, setIsSigningOut] = useState(false);
+  
+  const { logout } = useAuth();
   
   // Mock user data (in a real app, this would come from authentication context)
   const userData = {
@@ -34,6 +39,13 @@ const SignOutPage = () => {
       router.push('/');
     }
   }, [countdown, router]);
+
+  useEffect(() => {
+    const performLogout = async () => {
+      await logout();
+    };
+    performLogout();
+  }, [logout]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">

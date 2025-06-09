@@ -43,7 +43,9 @@ const AssignmentsPage = () => {
     },
     {
       id: 2,
+      key: Date.now() + Math.random(), // adding a unique key to each assignment
       title: "Chemistry Lab Report",
+      key: `assignment-${Date.now() + Math.random()}`,
       course: "Chemistry 201",
       description: "Write a lab report on titration experiment.",
       instructions: "Include abstract, methodology, results, and conclusion. Use APA format.",
