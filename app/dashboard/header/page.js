@@ -1,20 +1,14 @@
-// components/Header.js
 "use client";
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-
-  // State to track which category dropdown is open (clicked)
   const [openMenus, setOpenMenus] = useState({});
-  // State to track which category is being hovered
   const [hoveredId, setHoveredId] = useState(null);
-
-  // Ref wrapping the desktop nav + dropdowns
   const navRef = useRef(null);
 
-  // Close any open category dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (navRef.current && !navRef.current.contains(event.target)) {
@@ -28,13 +22,11 @@ const Header = () => {
   const toggleCategory = (id) => {
     setOpenMenus((prev) => {
       if (prev[id]) {
-        // If already open, close it and clear hovered state
         setHoveredId(null);
         const copy = { ...prev };
         delete copy[id];
         return copy;
       } else {
-        // Open this one and close any other
         return { [id]: true };
       }
     });
@@ -101,7 +93,7 @@ const Header = () => {
             </Link>
           </div>
 
-          {/* Desktop Navigation (wrapped in ref) */}
+          {/* Desktop Navigation */}
           <nav ref={navRef} className="hidden md:flex space-x-1 lg:space-x-4">
             <Link
               href="/"
@@ -113,7 +105,6 @@ const Header = () => {
             {courses.map((category) => {
               const isOpen = !!openMenus[category.id];
               const isHovered = hoveredId === category.id;
-              // Show dropdown if clicked-open OR hovered
               const showDropdown = isOpen || isHovered;
 
               return (
@@ -170,15 +161,13 @@ const Header = () => {
             >
               Dashboard
             </Link>
-         <Link
+            <Link
               href="/themebutton"
               className="px-3 py-2 rounded-md hover:bg-blue-600 transition duration-200 font-medium"
             >
               Theme settings
             </Link>
-         
           </nav>
-      
 
           {/* User Actions */}
           <div className="flex items-center space-x-4">
@@ -282,6 +271,7 @@ const Header = () => {
             <Link
               href="/"
               className="block px-3 py-2 rounded-md text-white font-medium hover:bg-blue-700"
+              onClick={() => setIsMenuOpen(false)}
             >
               Home
             </Link>
@@ -317,6 +307,7 @@ const Header = () => {
                           key={item.name}
                           href={item.href}
                           className="block px-3 py-2 rounded-md text-blue-100 font-medium hover:bg-blue-700"
+                          onClick={() => setIsMenuOpen(false)}
                         >
                           {item.name}
                         </Link>
@@ -328,10 +319,20 @@ const Header = () => {
             })}
 
             <Link
-              href="/dashboard"
+              href="/dashboard/dashboard"
               className="block px-3 py-2 rounded-md text-white font-medium hover:bg-blue-700"
+              onClick={() => setIsMenuOpen(false)}
             >
               Dashboard
+            </Link>
+            
+            {/* Added Theme Settings to Mobile Menu */}
+            <Link
+              href="/themebutton"
+              className="block px-3 py-2 rounded-md text-white font-medium hover:bg-blue-700"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Theme settings
             </Link>
           </div>
         </div>
