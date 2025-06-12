@@ -1,6 +1,6 @@
 // pages/index.js
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   FiBook,
   FiCalendar,
@@ -14,25 +14,38 @@ import {
   FiClock,
   FiAward,
 } from "react-icons/fi";
-import LoadingSpinner from "./components/LoadingSpinner";
 
 const HomePage = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  // State management
-  const [showSearch, setShowSearch] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState("enrolled");
-  const [notifications, setNotifications] = useState([]);
-  const [filteredCourses, setFilteredCourses] = useState([]);
+  // 1. State add karo upar:
+const [showSearch, setShowSearch] = useState(false);
+const [searchQuery, setSearchQuery] = useState("");
 
-  const [user, setUser] = useState({
+  const [activeTab, setActiveTab] = useState("enrolled");
+  const [notifications, setNotifications] = useState([
+    {
+      id: 1,
+      title: "New assignment",
+      course: "JavaScript",
+      time: "2 hours ago",
+      read: false,
+    },
+    {
+      id: 2,
+      title: "Course updated",
+      course: "Data Science",
+      time: "1 day ago",
+      read: true,
+    },
+  ]);
+
+  const user = {
     name: "Ali",
     progress: 65,
     enrolled: 4,
     completed: 2,
     streak: 12,
-  });
-
+  };
+  // any change deteted here will be reflected in the UI
   const enrolledCourses = [
     {
       id: 1,
@@ -40,7 +53,6 @@ const HomePage = () => {
       instructor: "Sarah Johnson",
       progress: 68,
       duration: "12h 45m left",
-      category: "programming",
       thumbnail: "bg-gradient-to-r from-blue-500 to-indigo-600",
       icon: <FiBook className="text-blue-500" />,
     },
@@ -49,7 +61,6 @@ const HomePage = () => {
       title: "Data Science Fundamentals",
       instructor: "Michael Chen",
       progress: 24,
-      category: "data-science",
       duration: "32h 15m left",
       thumbnail: "bg-gradient-to-r from-purple-500 to-pink-500",
       icon: <FiAward className="text-purple-500" />,
@@ -62,7 +73,6 @@ const HomePage = () => {
       title: "React Masterclass",
       instructor: "Emma Wilson",
       rating: 4.9,
-      category: "programming",
       students: 2450,
       duration: "8 weeks",
       thumbnail: "bg-gradient-to-r from-cyan-500 to-blue-500",
@@ -72,7 +82,6 @@ const HomePage = () => {
       title: "Python for Data Analysis",
       instructor: "David Kim",
       rating: 4.7,
-      category: "data-science",
       students: 1870,
       duration: "6 weeks",
       thumbnail: "bg-gradient-to-r from-green-500 to-teal-500",
@@ -82,7 +91,6 @@ const HomePage = () => {
       title: "UI/UX Design Principles",
       instructor: "Sophia Martinez",
       rating: 4.8,
-      category: "design",
       students: 3120,
       duration: "5 weeks",
       thumbnail: "bg-gradient-to-r from-yellow-500 to-orange-500",
@@ -116,73 +124,8 @@ const HomePage = () => {
     },
   ];
 
-  // Simulating data fetching
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Simulate API calls
-        await Promise.all([
-          new Promise((resolve) => setTimeout(resolve, 1000)), // User data
-          new Promise((resolve) => setTimeout(resolve, 1500)), // Notifications
-        ]);
-
-        setNotifications([
-          {
-            id: 1,
-            title: "New assignment",
-            course: "JavaScript",
-            time: "2 hours ago",
-            read: false,
-          },
-          {
-            id: 2,
-            title: "Course updated",
-            course: "Data Science",
-            time: "1 day ago",
-            read: true,
-          },
-        ]);
-
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  // Search and filter functionality
-  useEffect(() => {
-    const filterCourses = () => {
-      const coursesToFilter =
-        activeTab === "enrolled" ? enrolledCourses : recommendedCourses;
-      if (!searchQuery) {
-        setFilteredCourses(coursesToFilter);
-        return;
-      }
-
-      const filtered = coursesToFilter.filter((course) =>
-        course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        course.instructor.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        course.category.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setFilteredCourses(filtered);
-    };
-
-    filterCourses();
-  }, [searchQuery, activeTab]);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <LoadingSpinner />
-      </div>
-    );
-  }
-
   return (
+    
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
@@ -194,24 +137,25 @@ const HomePage = () => {
           </div>
 
           <div className="flex items-center space-x-6">
-            <div className="relative">
-              <button
-                className="text-gray-600 hover:text-indigo-600 flex items-center"
-                onClick={() => setShowSearch(!showSearch)}
-              >
-                <FiSearch className="text-xl" />
-              </button>
-              {showSearch && (
-                <input
-                  type="text"
-                  autoFocus
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search courses..."
-                  className="absolute right-0 top-8 w-48 px-2 py-1 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              )}
-            </div>
+           <div className="relative">
+  <button
+    className="text-gray-600 hover:text-indigo-600 flex items-center"
+    onClick={() => setShowSearch(!showSearch)}
+  >
+    <FiSearch className="text-xl" />
+  </button>
+  {showSearch && (
+    <input
+  type="text"
+  autoFocus
+  value={searchQuery}
+  onChange={(e) => setSearchQuery(e.target.value)}
+  placeholder="Search courses..."
+  className="absolute right-0 top-8 w-48 px-2 py-1 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-black"
+/>
+
+  )}
+</div>
 
             <div className="relative">
               <button className="text-gray-600 hover:text-indigo-600">
@@ -238,8 +182,7 @@ const HomePage = () => {
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-800">
-            Welcome back,{" "}
-            <span className="text-indigo-600">{user.name}</span>!
+            Welcome back, <span className="text-indigo-600">{user.name}</span>!
           </h1>
           <p className="text-gray-600 mt-2">
             Continue your learning journey. You've completed {user.completed} of{" "}
@@ -329,12 +272,9 @@ const HomePage = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {(activeTab === "enrolled" ? enrolledCourses : recommendedCourses)
-              .filter((course) =>
-                course.title.toLowerCase().includes(searchQuery.toLowerCase())
-              )
-              .map((course) => (
+          {activeTab === "enrolled" ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {enrolledCourses.map((course) => (
                 <div
                   key={course.id}
                   className="bg-white rounded-xl shadow overflow-hidden"
@@ -380,7 +320,43 @@ const HomePage = () => {
                   </div>
                 </div>
               ))}
-          </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {recommendedCourses.map((course) => (
+                <div
+                  key={course.id}
+                  className="bg-white rounded-xl shadow overflow-hidden hover:shadow-lg transition"
+                >
+                  <div
+                    className={`${course.thumbnail} h-40 flex items-center justify-center`}
+                  >
+                    <FiBook className="text-white text-4xl opacity-80" />
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">
+                      {course.title}
+                    </h3>
+                    <p className="text-gray-600 mb-3">By {course.instructor}</p>
+
+                    <div className="flex justify-between text-sm mb-4">
+                      <div className="flex items-center text-yellow-500">
+                        ★ {course.rating}{" "}
+                        <span className="text-gray-500 ml-1">
+                          ({Math.floor(course.students / 1000)}k)
+                        </span>
+                      </div>
+                      <div className="text-gray-600">{course.duration}</div>
+                    </div>
+
+                    <button className="w-full bg-indigo-100 text-indigo-700 py-2 rounded-lg font-medium hover:bg-indigo-200 transition">
+                      Explore Course
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Notifications */}
