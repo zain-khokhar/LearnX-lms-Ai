@@ -2,13 +2,39 @@
 "use client";
 import React, { useState } from 'react';
 import Link from 'next/link';
- 
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 const LoginPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const router = useRouter();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/signup';
+      const payload = isLogin ? { email, password } : { email, password, name };
+
+      const response = await axios.post(endpoint, payload);
+
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        router.push('/dashboard');
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -83,14 +109,18 @@ const LoginPage = () => {
               />
             </div>
 
+            {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+
             <button
+              onClick={handleSubmit}
+              disabled={loading}
               className={`w-full py-3 px-4 rounded-lg font-bold text-white shadow-md transition duration-200 ${
                 isLogin
                   ? 'bg-gradient-to-r from-blue-700 to-blue-800 hover:from-blue-800 hover:to-blue-900'
                   : 'bg-gradient-to-r from-indigo-700 to-indigo-800 hover:from-indigo-800 hover:to-indigo-900'
               }`}
             >
-              {isLogin ? 'Login to Account' : 'Create Account'}
+              {loading ? 'Processing...' : isLogin ? 'Login to Account' : 'Create Account'}
             </button>
 
             <div className="mt-4 text-center">
