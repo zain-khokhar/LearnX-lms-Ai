@@ -133,7 +133,7 @@ const [searchQuery, setSearchQuery] = useState("");
             <div className="bg-gradient-to-r from-indigo-600 to-purple-700 p-2 rounded-lg">
               <FiBook className="text-white text-2xl" />
             </div>
-            <h1 className="ml-3 text-2xl font-bold text-gray-800">LearnHub</h1>
+            <h1 className="ml-3 text-2xl font-bold text-gray-800">LEARNX</h1>
           </div>
 
           <div className="flex items-center space-x-6">
@@ -405,7 +405,7 @@ const [searchQuery, setSearchQuery] = useState("");
               <div className="bg-gradient-to-r from-indigo-600 to-purple-700 p-2 rounded-lg">
                 <FiBook className="text-white text-xl" />
               </div>
-              <span className="ml-2 font-bold text-gray-800">LearnHub</span>
+              <span className="ml-2 font-bold text-gray-800">LEARNX</span>
             </div>
 
             <div className="flex space-x-6">
@@ -424,7 +424,7 @@ const [searchQuery, setSearchQuery] = useState("");
             </div>
 
             <div className="mt-4 md:mt-0 text-gray-500 text-sm">
-              © 2023 LearnHub. All rights reserved.
+              © 2023 LEARNX. All rights reserved.
             </div>
           </div>
         </div>

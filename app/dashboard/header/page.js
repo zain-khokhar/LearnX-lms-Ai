@@ -89,7 +89,7 @@ const Header = () => {
                   />
                 </svg>
               </div>
-              <span className="font-bold text-xl md:text-2xl">LearnHub</span>
+              <span className="font-bold text-xl md:text-2xl">LEARNX</span>
             </Link>
           </div>
 

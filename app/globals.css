@@ -1,3 +1,4 @@
+
 @import "tailwindcss";
 
 :root {
@@ -19,88 +20,26 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
-/* components/Animated3DScrollbar.css */
-.scroll-container {
-  position: relative;
-  height: 100%;
-  width: 100%;
-  display: flex;
-  overflow: hidden;
+
+body {
+  /* If you want to use Tailwind classes, use them in your HTML, or configure PostCSS properly */
+  background-color: #111827; /* Tailwind's bg-gray-900 */
+  color: #f3f4f6; /* Tailwind's text-gray-100 */
 }
 
-.content {
-  flex: 1;
-  height: 100%;
-  overflow-y: scroll;
-  padding-right: 16px; /* Space for scrollbar */
-  scrollbar-width: none; /* Hide default scrollbar */
-  -ms-overflow-style: none;
+input, select {
+  background-color: rgba(55, 65, 81, 0.5); /* bg-gray-700/50 */
+  border: 1px solid #4b5563; /* border-gray-600 */
+  border-radius: 0.5rem; /* rounded-lg */
+  padding-left: 1rem; /* px-4 */
+  padding-right: 1rem; /* px-4 */
+  padding-top: 0.75rem; /* py-3 */
+  padding-bottom: 0.75rem; /* py-3 */
+  outline: none; /* outline-none */
+  transition: all 0.2s; /* transition */
 }
 
-.content::-webkit-scrollbar {
-  display: none; /* Hide default scrollbar in WebKit */
-}
-
-.scrollbar-track {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 14px;
-  height: 100%;
-  background: rgba(30, 30, 50, 0.2);
-  border-radius: 10px;
-  transform: perspective(500px) rotateY(-20deg);
-  transform-origin: right center;
-  transition: transform 0.3s ease, background 0.3s ease;
-  z-index: 100;
-}
-
-.scrollbar-track:hover {
-  background: rgba(40, 40, 60, 0.4);
-  transform: perspective(500px) rotateY(-10deg);
-}
-
-.scrollbar-thumb {
-  position: absolute;
-  width: 100%;
-  background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
-  border-radius: 10px;
-  cursor: pointer;
-  transform-style: preserve-3d;
-  transform: translateY(0) rotateX(0deg);
-  transition: 
-    height 0.2s ease, 
-    background 0.3s ease,
-    transform 0.15s ease;
-  box-shadow: 
-    0 0 15px rgba(106, 17, 203, 0.5),
-    0 0 30px rgba(37, 117, 252, 0.3),
-    inset 0 0 10px rgba(255, 255, 255, 0.2);
-  
-  /* 3D effect layers */
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.scrollbar-thumb:hover {
-  background: linear-gradient(45deg, #7a2be2 0%, #4d8dfc 100%);
-  box-shadow: 
-    0 0 20px rgba(122, 43, 226, 0.7),
-    0 0 40px rgba(77, 141, 252, 0.5),
-    inset 0 0 15px rgba(255, 255, 255, 0.3);
-}
-
-.scrollbar-thumb:active {
-  background: linear-gradient(45deg, #5a0cb0 0%, #1c65f0 100%);
-  transform: scaleX(1.1) !important;
-}
-
-/* Animation for scrollbar thumb */
-@keyframes pulse {
-  0% { box-shadow: 0 0 15px rgba(106, 17, 203, 0.5), 0 0 30px rgba(37, 117, 252, 0.3); }
-  50% { box-shadow: 0 0 20px rgba(106, 17, 203, 0.8), 0 0 40px rgba(37, 117, 252, 0.6); }
-  100% { box-shadow: 0 0 15px rgba(106, 17, 203, 0.5), 0 0 30px rgba(37, 117, 252, 0.3); }
-}
-
-.scrollbar-thumb {
-  animation: pulse 3s infinite ease-in-out;
+input:focus, select:focus {
+  box-shadow: 0 0 0 2px #06b6d4; /* focus:ring-2 focus:ring-cyan-500 */
+  border-color: transparent; /* focus:border-transparent */
 }
