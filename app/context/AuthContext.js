@@ -1,26 +1,39 @@
 
 "use client";
 import { createContext, useContext, useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const router = useRouter();
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      setIsAuthenticated(true);
-    } else {
-      setIsAuthenticated(false);
-      router.push('/dashboard/login');
+  // Only track user state, no routing logic
+  const [user, setUser] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        return JSON.parse(localStorage.getItem('user'));
+      } catch {
+        return null;
+      }
     }
-  }, [router]);
+    return null;
+  });
+  
+  // Update user data in AuthContext when it changes in localStorage
+  useEffect(() => {
+    const handleStorageChange = () => {
+      try {
+        const userData = JSON.parse(localStorage.getItem('user'));
+        setUser(userData);
+      } catch {
+        setUser(null);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated }}>
+    <AuthContext.Provider value={{ user }}>
       {children}
     </AuthContext.Provider>
   );

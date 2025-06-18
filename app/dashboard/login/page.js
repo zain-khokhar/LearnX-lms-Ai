@@ -1,86 +1,80 @@
 // pages/login.js
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/app/context/AuthContext';
 
 const API_BASE_URL = '/api/auth';
 
 const LoginPage = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [signupEmail, setSignupEmail] = useState('');
+  const [signupPassword, setSignupPassword] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
-
-  const validateForm = () => {
-    if (!email.trim() || !password.trim()) {
-      setError('Email and password are required');
-      return false;
-    }
-    if (!isLogin && !name.trim()) {
-      setError('Name is required for signup');
-      return false;
-    }
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError('Please enter a valid email address');
-      return false;
-    }
-    // Password length validation
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters long');
-      return false;
-    }
-    return true;
-  };
-
-  const handleSubmit = async (e) => {
+    const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) {
-      setError('Please fill in all required fields');
-      return;
-    }
     setLoading(true);
     setError('');
-    // ya ak hee honna chian 
+
     try {
       const endpoint = `/api/auth/${isLogin ? 'login' : 'signup'}`;
-      const payload = isLogin ? { email, password } : { email, password, name };
+      const payload = isLogin 
+        ? { email: loginEmail, password: loginPassword }
+        : { email: signupEmail, password: signupPassword, name };
 
-      const response = await fetch(endpoint, {
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
+      const data = await res.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Authentication failed');
+      if (!res.ok) {
+        throw new Error(data.error || 'Something went wrong');
       }
-
-      // Store token
+      
+      // Store user data and token if successful
+      localStorage.setItem('user', JSON.stringify(data.user));
       localStorage.setItem('token', data.token);
       
-      // Redirect to dashboard
-      router.push('/dashboard');
+      // Clear form and show success message
+      setError('');
+      setLoading(false);
+      
+      // Optionally offer redirection
+      // if (confirm('Login successful! Would you like to go to the dashboard?')) {
+        router.replace("/dashboard/dashboard");
+        
     } catch (err) {
-      setError(err.message || 'An error occurred');
-    } finally {
+      console.error('Auth error:', err);
+      setError(err.message || 'An error occurred during authentication');
       setLoading(false);
     }
   };
 
+  const LoadingOverlay = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-4 rounded-lg">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700"></div>
+        <p className="mt-2 text-sm text-gray-600">Redirecting...</p>
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-indigo-100">
-    
+      {loading && <LoadingOverlay />}
       
       <main className="flex-grow flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-white rounded-xl shadow-xl overflow-hidden">
@@ -130,9 +124,8 @@ const LoginPage = () => {
               <input
                 type="email"
                 id="email"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600"                value={isLogin ? loginEmail : signupEmail}
+                onChange={(e) => isLogin ? setLoginEmail(e.target.value) : setSignupEmail(e.target.value)}
               />
             </div>
 
@@ -143,9 +136,8 @@ const LoginPage = () => {
               <input
                 type="password"
                 id="password"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600"                value={isLogin ? loginPassword : signupPassword}
+                onChange={(e) => isLogin ? setLoginPassword(e.target.value) : setSignupPassword(e.target.value)}
               />
             </div>
 
