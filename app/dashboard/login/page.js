@@ -5,6 +5,8 @@ import Link from 'next/link';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 
+const API_BASE_URL = '/api/auth';
+
 const LoginPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
@@ -14,23 +16,63 @@ const LoginPage = () => {
   const [error, setError] = useState('');
   const router = useRouter();
 
+  const validateForm = () => {
+    if (!email.trim() || !password.trim()) {
+      setError('Email and password are required');
+      return false;
+    }
+    if (!isLogin && !name.trim()) {
+      setError('Name is required for signup');
+      return false;
+    }
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email address');
+      return false;
+    }
+    // Password length validation
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) {
+      setError('Please fill in all required fields');
+      return;
+    }
     setLoading(true);
     setError('');
-
+    // ya ak hee honna chian 
     try {
-      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/signup';
+      const endpoint = `/api/auth/${isLogin ? 'login' : 'signup'}`;
       const payload = isLogin ? { email, password } : { email, password, name };
 
-      const response = await axios.post(endpoint, payload);
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
 
-      if (response.data.token) {
-        localStorage.setItem('token', response.data.token);
-        router.push('/dashboard');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Authentication failed');
       }
+
+      // Store token
+      localStorage.setItem('token', data.token);
+      
+      // Redirect to dashboard
+      router.push('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'An error occurred');
+      setError(err.message || 'An error occurred');
     } finally {
       setLoading(false);
     }
@@ -64,10 +106,8 @@ const LoginPage = () => {
             >
               Sign Up
             </button>
-          </div>
-
-          {/* Form */}
-          <div className="p-6 sm:p-8">
+          </div>          {/* Form */}
+          <form onSubmit={handleSubmit} className="p-6 sm:p-8">
             {!isLogin && (
               <div className="mb-4">
                 <label htmlFor="name" className="block text-sm font-medium text-gray-800 mb-1">
@@ -109,10 +149,8 @@ const LoginPage = () => {
               />
             </div>
 
-            {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-
-            <button
-              onClick={handleSubmit}
+            {error && <p className="text-red-500 text-sm mb-4">{error}</p>}            <button
+              type="submit"
               disabled={loading}
               className={`w-full py-3 px-4 rounded-lg font-bold text-white shadow-md transition duration-200 ${
                 isLogin
@@ -138,9 +176,8 @@ const LoginPage = () => {
                 >
                   {isLogin ? 'Sign Up' : 'Login'}
                 </button>
-              </p>
-            </div>
-          </div>
+              </p>            </div>
+          </form>
         </div>
       </main>
     </div>
