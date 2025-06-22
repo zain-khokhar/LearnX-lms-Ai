@@ -1,21 +1,32 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 function Page() {
   const router = useRouter();
   const [isSigningOut, setIsSigningOut] = useState(false);
-  
-  // Get user data from localStorage
-  const userData = JSON.parse(localStorage.getItem('user') || '{"name": "User", "email": ""}');
-    // Handle sign out confirmation
+  const [userData, setUserData] = useState({ name: 'User', email: '' });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('user');
+      if (stored) {
+        try {
+          setUserData(JSON.parse(stored));
+        } catch {
+          setUserData({ name: 'User', email: '' });
+        }
+      }
+    }
+  }, []);
+
   const handleSignOut = () => {
     setIsSigningOut(true);
-    // Clear authentication data
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    // Show success message and offer redirection
-    if (confirm('Successfully signed out! Would you like to return to login page?')) {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
+    if (window.confirm('Successfully signed out! Would you like to return to login page?')) {
       router.push('/dashboard/login');
     } else {
       setIsSigningOut(false);
