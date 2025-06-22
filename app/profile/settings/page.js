@@ -291,7 +291,7 @@ const PrivacySettings = () => (
         <div className="flex justify-between items-center">
           <div>
             <h4 className="font-medium text-gray-800">Activity Status</h4>
-            <p className="text-sm text-gray-600">Show when you're active on the platform</p>
+            <p className="text-sm text-gray-600">Show when you&apos;re active on the platform</p>
           </div>
           <label className="relative inline-flex items-center cursor-pointer">
             <input type="checkbox" className="sr-only peer" defaultChecked />

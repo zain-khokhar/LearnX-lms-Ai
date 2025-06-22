@@ -185,7 +185,7 @@ const [searchQuery, setSearchQuery] = useState("");
             Welcome back, <span className="text-indigo-600">{user.name}</span>!
           </h1>
           <p className="text-gray-600 mt-2">
-            Continue your learning journey. You've completed {user.completed} of{" "}
+            Continue your learning journey. You&apos;ve completed {user.completed} of{' '}
             {user.enrolled} courses.
           </p>
 

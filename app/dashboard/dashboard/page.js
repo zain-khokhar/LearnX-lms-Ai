@@ -45,7 +45,7 @@ const Dashboard = () => {
             {/* Welcome Banner */}
             <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-6 text-white">
               <h2 className="text-2xl font-bold mb-2">Welcome back, Ali!</h2>
-              <p className="opacity-90 mb-4">Continue your learning journey. You've completed 65% of your goals this week.</p>
+              <p className="opacity-90 mb-4">Continue your learning journey. You&apos;ve completed 65% of your goals this week.</p>
               <div className="w-full bg-blue-400 rounded-full h-2.5 mb-4">
                 <div className="bg-white h-2.5 rounded-full" style={{ width: '65%' }}></div>
               </div>
