@@ -1,6 +1,6 @@
 // app/progress/page.js
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FiBook, FiClock, FiAward, FiBarChart2, FiTrendingUp, FiCalendar } from 'react-icons/fi';
 import { Line, Bar } from 'react-chartjs-2';
 import {
@@ -26,75 +26,70 @@ ChartJS.register(
   Legend
 );
 
-const ProgressPage = () => {
+const ProgressPage = ({ params }) => {
   const [timeFilter, setTimeFilter] = useState('month');
+  const [progressData, setProgressData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   
-  // Mock data
-  const progressData = {
-    overall: {
-      enrolledCourses: 12,
-      completedCourses: 8,
-      inProgress: 4,
-      completionRate: 65,
-      learningHours: 142,
-      streak: 7,
-      avgScore: 86,
-    },
-    weeklyProgress: [65, 72, 68, 75, 80, 78, 82],
-    courses: [
-      {
-        id: 1,
-        title: "Advanced JavaScript",
-        instructor: "Ali Raza",
-        progress: 68,
-        hoursSpent: 24,
-        hoursLeft: 12,
-        lastAccessed: "2023-10-15",
-        targetDate: "2023-11-30",
-        assessments: [
-          { name: "Module 1 Quiz", score: 92 },
-          { name: "Project 1", score: 88 },
-          { name: "Midterm", score: 85 },
-        ]
-      },
-      {
-        id: 2,
-        title: "Data Science Fundamentals",
-        instructor: "Sarah Khan",
-        progress: 42,
-        hoursSpent: 18,
-        hoursLeft: 24,
-        lastAccessed: "2023-10-18",
-        targetDate: "2023-12-15",
-        assessments: [
-          { name: "Pandas Assignment", score: 78 },
-          { name: "Data Visualization", score: 85 },
-        ]
-      },
-      {
-        id: 3,
-        title: "React Native Development",
-        instructor: "Ahmed Malik",
-        progress: 85,
-        hoursSpent: 32,
-        hoursLeft: 6,
-        lastAccessed: "2023-10-20",
-        targetDate: "2023-11-15",
-        assessments: [
-          { name: "Component Design", score: 90 },
-          { name: "State Management", score: 88 },
-          { name: "API Integration", score: 92 },
-        ]
-      }
-    ],
-    achievements: [
-      { id: 1, name: "Fast Learner", description: "Completed 3 courses in 30 days", earned: true, icon: "⚡" },
-      { id: 2, name: "Quiz Master", description: "Scored 90%+ on 5 quizzes", earned: true, icon: "📝" },
-      { id: 3, name: "Perfect Attendance", description: "30 consecutive learning days", earned: false, icon: "🔥" },
-      { id: 4, name: "Early Bird", description: "Completed course before deadline", earned: false, icon: "⏰" },
-    ],
-    weeklyHours: [8, 12, 9, 11, 14, 10, 13],
+  // Get user ID from authentication context or params
+  const userId = "65f1a9e8f7d8b8c1d4f3b2a1" || params?.userId; // Replace with actual user ID
+
+  // Fetch progress data from API
+  const fetchProgressData = async () => {
+    try {
+      setLoading(true);
+      const [overallRes, coursesRes, achievementsRes] = await Promise.all([
+        fetch(`/api/progress/user/${userId}`),
+        fetch(`/api/progress/courses/${userId}`),
+        fetch(`/api/progress/achievements/${userId}`)
+      ]);
+      
+      if (!overallRes.ok) throw new Error('Failed to fetch overall progress');
+      if (!coursesRes.ok) throw new Error('Failed to fetch courses progress');
+      if (!achievementsRes.ok) throw new Error('Failed to fetch achievements');
+      
+      const overall = await overallRes.json();
+      const courses = await coursesRes.json();
+      const achievements = await achievementsRes.json();
+      
+      setProgressData({ overall, courses, achievements });
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+      console.error('Error fetching progress data:', err);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  // When updating progress
+  const updateCourseProgress = async (courseId, newData) => {
+    try {
+      const response = await fetch('/api/progress/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId,
+          courseId,
+          progressData: newData
+        })
+      });
+      
+      if (!response.ok) throw new Error('Failed to update progress');
+      
+      // Refresh data after update
+      fetchProgressData();
+    } catch (err) {
+      console.error('Update error:', err);
+      setError(err.message);
+    }
+  };
+
+  // Initial data fetch
+  useEffect(() => {
+    fetchProgressData();
+  }, [userId]);
 
   // Chart options
   const chartOptions = {
@@ -122,41 +117,6 @@ const ProgressPage = () => {
     },
   };
 
-  // Progress chart data
-  const progressChartData = {
-    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7'],
-    datasets: [
-      {
-        label: 'Your Progress',
-        data: progressData.weeklyProgress,
-        borderColor: 'rgb(99, 102, 241)',
-        backgroundColor: 'rgba(99, 102, 241, 0.2)',
-        tension: 0.3,
-      },
-      {
-        label: 'Class Average',
-        data: [52, 58, 62, 60, 65, 68, 70],
-        borderColor: 'rgb(156, 163, 175)',
-        backgroundColor: 'rgba(156, 163, 175, 0.2)',
-        borderDash: [5, 5],
-        tension: 0.3,
-      }
-    ],
-  };
-
-  // Hours chart data
-  const hoursChartData = {
-    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    datasets: [
-      {
-        label: 'Learning Hours',
-        data: progressData.weeklyHours,
-        backgroundColor: 'rgba(79, 70, 229, 0.7)',
-        borderRadius: 4,
-      }
-    ],
-  };
-
   // Format date
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -180,6 +140,71 @@ const ProgressPage = () => {
     if (progress >= 75) return 'text-blue-600 bg-blue-100';
     if (progress >= 50) return 'text-yellow-600 bg-yellow-100';
     return 'text-red-600 bg-red-100';
+  };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading your progress data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="bg-white p-8 rounded-xl shadow-md max-w-md text-center">
+          <div className="text-red-500 text-5xl mb-4">⚠️</div>
+          <h2 className="text-xl font-bold text-gray-800 mb-2">Error Loading Data</h2>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <button 
+            onClick={fetchProgressData}
+            className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Prepare chart data
+  const progressChartData = {
+    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7'],
+    datasets: [
+      {
+        label: 'Your Progress',
+        data: progressData.overall.weeklyProgress || [0, 0, 0, 0, 0, 0, 0],
+        borderColor: 'rgb(99, 102, 241)',
+        backgroundColor: 'rgba(99, 102, 241, 0.2)',
+        tension: 0.3,
+      },
+      {
+        label: 'Class Average',
+        data: [52, 58, 62, 60, 65, 68, 70],
+        borderColor: 'rgb(156, 163, 175)',
+        backgroundColor: 'rgba(156, 163, 175, 0.2)',
+        borderDash: [5, 5],
+        tension: 0.3,
+      }
+    ],
+  };
+
+  const hoursChartData = {
+    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    datasets: [
+      {
+        label: 'Learning Hours',
+        data: progressData.overall.weeklyHours || [0, 0, 0, 0, 0, 0, 0],
+        backgroundColor: 'rgba(79, 70, 229, 0.7)',
+        borderRadius: 4,
+      }
+    ],
   };
 
   return (
@@ -220,42 +245,42 @@ const ProgressPage = () => {
           <StatCard 
             icon={<FiBook className="text-2xl" />}
             title="Enrolled Courses"
-            value={progressData.overall.enrolledCourses}
+            value={progressData.overall.enrolledCourses || 0}
             change="+3 this month"
             color="bg-indigo-100 text-indigo-600"
           />
           <StatCard 
             icon={<FiClock className="text-2xl" />}
             title="Learning Hours"
-            value={progressData.overall.learningHours}
+            value={progressData.overall.learningHours || 0}
             change="+12h this week"
             color="bg-blue-100 text-blue-600"
           />
           <StatCard 
             icon={<FiAward className="text-2xl" />}
             title="Completion Rate"
-            value={`${progressData.overall.completionRate}%`}
+            value={`${progressData.overall.completionRate || 0}%`}
             change="+8% this month"
             color="bg-green-100 text-green-600"
           />
           <StatCard 
             icon={<FiTrendingUp className="text-2xl" />}
             title="Average Score"
-            value={`${progressData.overall.avgScore}%`}
+            value={`${progressData.overall.avgScore || 0}%`}
             change="Consistent performer"
             color="bg-yellow-100 text-yellow-600"
           />
           <StatCard 
             icon={<FiCalendar className="text-2xl" />}
             title="Current Streak"
-            value={`${progressData.overall.streak} days`}
+            value={`${progressData.overall.streak || 0} days`}
             change="Keep it up!"
             color="bg-orange-100 text-orange-600"
           />
           <StatCard 
             icon={<FiBarChart2 className="text-2xl" />}
             title="Courses Completed"
-            value={progressData.overall.completedCourses}
+            value={progressData.overall.completedCourses || 0}
             change="2 more than last month"
             color="bg-purple-100 text-purple-600"
           />
@@ -276,7 +301,9 @@ const ProgressPage = () => {
           <div className="bg-white rounded-2xl shadow p-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold text-gray-800">Weekly Learning Hours</h2>
-              <div className="text-sm text-gray-500">Current week: {progressData.weeklyHours.reduce((a, b) => a + b, 0)}h</div>
+              <div className="text-sm text-gray-500">
+                Current week: {progressData.overall.weeklyHours?.reduce((a, b) => a + b, 0) || 0}h
+              </div>
             </div>
             <div className="h-80">
               <Bar 
@@ -309,7 +336,7 @@ const ProgressPage = () => {
           
           <div className="divide-y divide-gray-100">
             {progressData.courses.map(course => (
-              <div key={course.id} className="p-6 hover:bg-gray-50 transition-colors">
+              <div key={course._id} className="p-6 hover:bg-gray-50 transition-colors">
                 <div className="flex flex-col md:flex-row justify-between">
                   <div className="mb-4 md:mb-0">
                     <h3 className="text-lg font-semibold text-gray-800">{course.title}</h3>
@@ -360,35 +387,37 @@ const ProgressPage = () => {
                 </div>
                 
                 {/* Assessments */}
-                <div className="mt-6">
-                  <h4 className="font-medium text-gray-800 mb-3">Assessment Scores</h4>
-                  <div className="flex space-x-4 overflow-x-auto pb-2">
-                    {course.assessments.map((assessment, idx) => (
-                      <div key={idx} className="flex-shrink-0 w-48 border border-gray-200 rounded-lg p-4">
-                        <div className="text-sm text-gray-500 truncate">{assessment.name}</div>
-                        <div className="flex items-baseline mt-2">
-                          <span className="text-2xl font-bold text-indigo-600">{assessment.score}%</span>
-                          <span className="ml-2 text-sm text-gray-500">score</span>
-                        </div>
-                        <div className="mt-2">
-                          <div className="w-full bg-gray-200 rounded-full h-1.5">
-                            <div 
-                              className="h-1.5 rounded-full" 
-                              style={{ 
-                                width: `${assessment.score}%`,
-                                backgroundColor: assessment.score >= 85 
-                                  ? '#10B981' 
-                                  : assessment.score >= 70 
-                                    ? '#F59E0B' 
-                                    : '#EF4444'
-                              }}
-                            ></div>
+                {course.assessments && course.assessments.length > 0 && (
+                  <div className="mt-6">
+                    <h4 className="font-medium text-gray-800 mb-3">Assessment Scores</h4>
+                    <div className="flex space-x-4 overflow-x-auto pb-2">
+                      {course.assessments.map((assessment, idx) => (
+                        <div key={idx} className="flex-shrink-0 w-48 border border-gray-200 rounded-lg p-4">
+                          <div className="text-sm text-gray-500 truncate">{assessment.name}</div>
+                          <div className="flex items-baseline mt-2">
+                            <span className="text-2xl font-bold text-indigo-600">{assessment.score}%</span>
+                            <span className="ml-2 text-sm text-gray-500">score</span>
+                          </div>
+                          <div className="mt-2">
+                            <div className="w-full bg-gray-200 rounded-full h-1.5">
+                              <div 
+                                className="h-1.5 rounded-full" 
+                                style={{ 
+                                  width: `${assessment.score}%`,
+                                  backgroundColor: assessment.score >= 85 
+                                    ? '#10B981' 
+                                    : assessment.score >= 70 
+                                      ? '#F59E0B' 
+                                      : '#EF4444'
+                                }}
+                              ></div>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             ))}
           </div>
@@ -401,7 +430,7 @@ const ProgressPage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {progressData.achievements.map(achievement => (
               <div 
-                key={achievement.id} 
+                key={achievement._id} 
                 className={`border rounded-xl p-4 flex flex-col items-center text-center ${
                   achievement.earned 
                     ? 'border-green-500 bg-green-50' 
