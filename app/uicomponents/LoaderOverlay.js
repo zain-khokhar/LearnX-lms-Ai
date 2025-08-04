@@ -1,3 +1,4 @@
+// LoaderOverlay.js
 "use client";
 import { useRouteLoader } from "./RouteLoaderProvider";
 import LmsLoader from "./loader/page";
