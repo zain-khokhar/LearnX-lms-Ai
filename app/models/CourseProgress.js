@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-
+console.log('Loading CourseProgress model...');
 const courseProgressSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,

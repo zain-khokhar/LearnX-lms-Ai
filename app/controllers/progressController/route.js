@@ -174,3 +174,6 @@ exports.checkAchievements = async (userId) => {
   }
 };
 // hello zain 
+if(true){
+  console.log("hello zain");
+}
