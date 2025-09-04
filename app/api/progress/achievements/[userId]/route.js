@@ -1,5 +1,5 @@
 import dbConnect from '@/app/lib/mongodb';
-import Achievement from '@/app/api/models/Achievements';
+import Achievement from '@/app/models/Achievements';
 
 export async function GET(req, { params }) {
   await dbConnect();

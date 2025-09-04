@@ -1,7 +1,7 @@
 import dbConnect from '@/lib/mongodb';
-import UserProgress from '@/app/api/models/userProgress';
-import CourseProgress from '@/app/api/models/CourseProgress';
-import Achievement from '@/app/api/models/Achievements';
+import UserProgress from '@/app/models/userProgress';
+import CourseProgress from '@/app/models/CourseProgress';
+import Achievement from '@/app/models/Achievements';
 
 export async function POST(req) {
   await dbConnect();

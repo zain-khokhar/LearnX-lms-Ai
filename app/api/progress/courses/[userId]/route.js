@@ -1,5 +1,5 @@
 import dbConnect from '@/app/lib/mongodb';
-import CourseProgress from '@/app/api/models/CourseProgress';
+import CourseProgress from '@/app/models/CourseProgress';
 
 export async function GET(req, { params }) {
   await dbConnect();
